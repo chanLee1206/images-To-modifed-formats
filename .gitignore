@@ -1,1 +1,5 @@
 src/
+output/
+output_docx_folder/
+output_txt_folder/
+output.docx
