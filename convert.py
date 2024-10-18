@@ -1,30 +1,37 @@
+import os
 import pytesseract
 from PIL import Image
-import os
+from docx import Document
+from docx.shared import Inches
 
-# Path to the Tesseract executable (if needed)
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Define the path to the directory containing images
+src_dir = "src_sample"
+# Output Word document path
+output_doc = "output.docx"
 
-# Path to the folder containing images
-image_folder = 'src_sample'
+# Create a new Document
+doc = Document()
 
-# Output folder for text files
-output_folder = 'output_txt_folder'
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
-
-# Loop through all images in the folder
-for filename in os.listdir(image_folder):
-    if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):
-        image_path = os.path.join(image_folder, filename)
-        img = Image.open(image_path)
+# Process each image in the specified directory
+for filename in os.listdir(src_dir):
+    if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):  # You can add more extensions if needed
+        # Full path to the image
+        img_path = os.path.join(src_dir, filename)
         
-        # Use Tesseract to extract text from the image
-        text = pytesseract.image_to_string(img, lang='eng')
+        # Open the image using Pillow
+        img = Image.open(img_path)
         
-        # Save the extracted text to a .txt file
-        txt_file_path = os.path.join(output_folder, f"{os.path.splitext(filename)[0]}.txt")
-        with open(txt_file_path, 'w', encoding='utf-8') as f:
-            f.write(text)
+        # Use pytesseract to extract text and get the color information
+        text = pytesseract.image_to_string(img)
 
-        print(f"Processed {filename} -> {txt_file_path}")
+        # Add the image to the document
+        doc.add_picture(img_path, width=Inches(5))  # Adjust width as needed
+        
+        # Add the extracted text to the document
+        # Here you could customize how to add color or format if needed
+        doc.add_paragraph(text)
+
+# Save the document
+doc.save(output_doc)
+
+print(f"Converted images in '{src_dir}' to '{output_doc}' successfully!")
